@@ -27,7 +27,7 @@ def TextAnalysis():
     messagebox.showinfo(None, wordCount)
 
 def ButtonCallback():
-    messagebox.showinfo(None,"Hey my button works!")
+    messagebox.showinfo(None,"I hope this works!")
 
 # Creating the Labels, Buttons and Text Box
 label = Label(window, text = "This is My Hello World Test", bg = "#000000" ,fg = "#31d5f9")
