@@ -8,7 +8,7 @@ TPS: Functional Prototype Script
 '''
 
 from tkinter import *
-import time
+from time import *
 
 class App():
     def __init__(self):
@@ -64,6 +64,17 @@ class App():
         self.cR7 = IntVar()
         self.cR8 = IntVar()
         self.cR9 = IntVar()
+
+
+        self.start_time = 0  # used to keep track of time elapsed
+        # flags for reminders completed or not
+        self.rem1_met = 0
+        self.rem2_met = 0
+        self.rem3_met = 0
+        # varialbles holding text of reminders.
+        self.rem1_text = ''
+        self.rem2_text = ''
+        self.rem3_text = ''
 
         '''
         Buttons
@@ -133,11 +144,11 @@ class App():
         self.rem3_label.insert(0,"Enter Reminder")
         self.rem3_label.config(state=DISABLED)
 
-        self.check_rem3 = Checkbutton(self.window, text="15", variable=self.cR7,bg=self.bg_color,command=lambda: self.CheckReminder2(1))
+        self.check_rem3 = Checkbutton(self.window, text="15", variable=self.cR7,bg=self.bg_color,command=lambda: self.CheckReminder3(1))
         self.check_rem3.deselect()
-        self.check_rem3_1 = Checkbutton(self.window, text="30", variable=self.cR8,bg=self.bg_color,command=lambda: self.CheckReminder2(2))
+        self.check_rem3_1 = Checkbutton(self.window, text="30", variable=self.cR8,bg=self.bg_color,command=lambda: self.CheckReminder3(2))
         self.check_rem3_1.deselect()
-        self.check_rem3_2 = Checkbutton(self.window, text="60", variable=self.cR9,bg=self.bg_color,command=lambda: self.CheckReminder2(3))
+        self.check_rem3_2 = Checkbutton(self.window, text="60", variable=self.cR9,bg=self.bg_color,command=lambda: self.CheckReminder3(3))
         self.check_rem3_2.deselect()
 
         '''
@@ -282,6 +293,10 @@ class App():
             self.goal_weekWC = int(self.weeklyGoalWC.get())
             self.monthGoalWC.config(state=DISABLED)
             self.goal_monthWC = int(self.monthGoalWC.get())
+            # added this flags to check if goal has been met or not otherwise label will keep printing
+            self.day_met = 0
+            self.week_met = 0
+            self.month_met = 0
 
     # (Michael: Took out out configs for the second text box since there are checkboxes now, added two more reminders)
     def EnterRem(self):
@@ -293,8 +308,15 @@ class App():
         else:
             self.remEdit = False
             self.rem1_label.config(state=DISABLED)
+            self.rem1_text = self.rem1_label.get() # added to store reminder name
             self.rem2_label.config(state=DISABLED)
+            self.rem2_text = self.rem2_label.get() # added to store reminder 2 name
             self.rem3_label.config(state=DISABLED)
+            self.rem3_text = self.rem3_label.get() # added to store reminder 3 name
+            self.rem1_met = 0
+            self.rem2_met = 0
+            self.rem3_met = 0
+            self.start_time = time()
 
     # (Michael: BUILD THE WIDGETS IN THIS FUNCTION, THE CHECKBOXES CALL THIS FUNCTION!
     # I moved all the actual construction of the widgets to this function since they rely on the
@@ -360,15 +382,54 @@ class App():
         self.root.after(self.dayCounter, self.graphUpdate)
 
     def notifiUpdate(self):
-        if self.dayInterval >= len(self.dayWC)-1: #Did not make goal
-            if self.wordCount < self.goal_dayWC:
-                self.notif.delete("notifTag")
-                self.notif.create_text(2,2,text = ":(",anchor="nw",tag="notifTag")
-                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
-            else:
-                self.notif.delete("notifTag")
-                self.notif.create_text(2,2,text = ":)",anchor="nw",tag="notifTag")
-                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
+        # goal met creation with current information
+        if self.dayInterval <= len(self.dayWC) - 1:  # Did not make goal
+            if self.wordCount > self.goal_weekWC:
+                if not self.week_met:
+                    self.week_met = 1
+                    self.notif.delete("notifTag")
+                    self.notif.create_text(2, 2, text="Reached Weekly Goal of %s " % self.goal_weekWC, anchor="nw",
+                                           tag="notifTag")
+                    self.notif.config(relief="ridge", bg="#7EE2E4", bd=1)
+            if self.wordCount > self.goal_dayWC:
+                if not self.day_met:
+                    self.day_met = 1
+                    self.notif.delete("notifTag")
+                    self.notif.create_text(2, 2, text="Reached Daily Goal of %s " % self.goal_dayWC, anchor="nw",
+                                           tag="notifTag")
+                    self.notif.config(relief="ridge", bg="#7EE2E4", bd=1)
+            if self.wordCount > self.goal_monthWC:
+                if not self.month_met:
+                    self.month_met = 1
+                    self.notif.delete("notifTag")
+                    self.notif.create_text(2, 2, text="Reached Daily Goal of %s " % self.goal_monthWC, anchor="nw",
+                                           tag="notifTag")
+                    self.notif.config(relief="ridge", bg="#7EE2E4", bd=1)
+            self.elapsed_time = time() - self.start_time
+
+
+           # reminder section MEASUREMENT IN SECONDS NOT MINUTES
+           # print(self.elapsed_time)
+            if self.reminderInterval > 0 :
+                if self.elapsed_time > self.reminderInterval:
+                    if not self.rem1_met:
+                        self.rem1_met = 1
+                        self.notif.delete("notifTag")
+                        self.notif.create_text(2, 2, text=self.rem1_text, anchor="nw", tag="notifTag")
+                        self.notif.config(relief="ridge", bg="#7EE2E4",bd=1)
+                if self.elapsed_time > self.reminderInterval2:
+                    if not self.rem2_met:
+                        self.rem2_met = 1
+                        self.notif.delete("notifTag")
+                        self.notif.create_text(2, 2, text=self.rem2_text, anchor="nw", tag="notifTag")
+                        self.notif.config(relief="ridge", bg="#7EE2E4",bd=1)
+                if self.elapsed_time > self.reminderInterval3:
+                    print("bigger3")
+                    if not self.rem3_met:
+                        self.rem3_met = 1
+                        self.notif.delete("notifTag")
+                        self.notif.create_text(2, 2, text=self.rem3_text, anchor="nw", tag="notifTag")
+                        self.notif.config(relief="ridge", bg="#7EE2E4",bd=1)
         self.root.after(100, self.notifiUpdate)
 
 
