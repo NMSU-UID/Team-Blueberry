@@ -143,6 +143,17 @@ class App():
         self.check_rem3_2 = Checkbutton(self.window, text="60", variable=self.cR9,bg=self.bg_color,command=lambda: self.CheckReminder2(3))
         self.check_rem3_2.deselect()
 
+        #Disable them to start
+        self.check_rem.config(state=DISABLED)
+        self.check_rem_1.config(state=DISABLED)
+        self.check_rem_2.config(state=DISABLED)
+        self.check_rem2.config(state=DISABLED)
+        self.check_rem2_1.config(state=DISABLED)
+        self.check_rem2_2.config(state=DISABLED)
+        self.check_rem3.config(state=DISABLED)
+        self.check_rem3_1.config(state=DISABLED)
+        self.check_rem3_2.config(state=DISABLED)
+
         '''
         Widget Select
         '''
@@ -201,7 +212,10 @@ class App():
                                "Megan Smith: That new WW episode! WHAT!", "Chad Johnson: High Desert anyone?", "ESPN: College football teams prepare for playoffs.",
                                "CNN: Travel spending up from last holiday season.", "Stan Marsh: Feeling like a Harry Potter movie marathon.",
                                "Jami Times: Posted a new picture.", "Jeff Dean: Shared a link.","Jack Greenman: Damn you finals...damn you...",
-                               "CNN: Experts debate the use of polls","CNN: Scientist continue work to combat Zika virus."]
+                               "CNN: Experts debate the use of polls","CNN: Scientist continue work to combat Zika virus.","BBC: Thai crown prince proclaimed new king",
+                               "BBC: Breitbart at war with Kellogg's","BBC: Top court to hear sacred grizzle bear case","BBC: Reddit moves against toxic Drmph fans",
+                               "CNN: Trash turns island into graveyard", "CNN: Study finds millions of China's missing girls actually exist", "CNN: New technology could help 230 million"]
+        self.mfCount = len(self.mediaFeed_list)-1
         self.mediaFeed = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
         self.mediaFeed.config(bg=self.wht_blue,relief=SUNKEN,bd=1)
         self.mediaFeed.create_rectangle(0,0,self.graphWidth+4,20,fill=self.hl_color)
@@ -228,7 +242,7 @@ class App():
         '''
         Notification
         '''
-        self.notifActive = True
+        self.notifActive = False
         self.notifColors = ["#A9CFD3","#9BCCD1","#8DCAD0","#7EC7CE","#6FC5CD","#5FC3CC","#52C2CC","#45C0CB","#3BBECA","#22BFCD", "#1BBFCE","#14C1D1","#0AC0D1","#00BBCD"]
         self.notifColorsCount = 0
         self.notifColorsDir = 1
@@ -360,11 +374,32 @@ class App():
             self.rem1_label.config(state=NORMAL)
             self.rem2_label.config(state=NORMAL)
             self.rem3_label.config(state=NORMAL)
+            self.check_rem.config(state=NORMAL)
+            self.check_rem_1.config(state=NORMAL)
+            self.check_rem_2.config(state=NORMAL)
+            self.check_rem2.config(state=NORMAL)
+            self.check_rem2_1.config(state=NORMAL)
+            self.check_rem2_2.config(state=NORMAL)
+            self.check_rem3.config(state=NORMAL)
+            self.check_rem3_1.config(state=NORMAL)
+            self.check_rem3_2.config(state=NORMAL)
         else:
             self.remEdit = False
             self.rem1_label.config(state=DISABLED)
             self.rem2_label.config(state=DISABLED)
             self.rem3_label.config(state=DISABLED)
+            self.check_rem.config(state=DISABLED)
+            self.check_rem_1.config(state=DISABLED)
+            self.check_rem_2.config(state=DISABLED)
+            self.check_rem2.config(state=DISABLED)
+            self.check_rem2_1.config(state=DISABLED)
+            self.check_rem2_2.config(state=DISABLED)
+            self.check_rem3.config(state=DISABLED)
+            self.check_rem3_1.config(state=DISABLED)
+            self.check_rem3_2.config(state=DISABLED)
+            self.root.after_cancel(self.notif_15Interval)
+            self.root.after_cancel(self.notif_30Interval)
+            self.root.after_cancel(self.notif_60Interval)
 
     # (Michael: BUILD THE WIDGETS IN THIS FUNCTION, THE CHECKBOXES CALL THIS FUNCTION!
     # I moved all the actual construction of the widgets to this function since they rely on the
@@ -464,7 +499,7 @@ class App():
     '''
     def mediaFeedUpdate(self):
         # update Media Feed ~ Rahul
-        if self.mfCount > 0:
+        if self.mfCount > 4:
             self.mediaFeed.delete("mfnum")
             self.mediaFeed.create_text(4,22,text=str(self.mediaFeed_list[self.mfCount-1]),font=("Arial",7),anchor="nw",tag="mfnum")
             self.mediaFeed.create_text(4,46,text=str(self.mediaFeed_list[self.mfCount-2]),font=("Arial",7),anchor="nw",tag="mfnum")
@@ -477,7 +512,7 @@ class App():
         self.root.after(10000, self.mediaFeedUpdate)
     def emailUpdate(self):
         # update Email ~ Rahul
-        if self.mailCount > 0:
+        if self.mailCount > 4:
             self.email.delete("mailnum")
             self.email.create_text(4, 22, text=str(self.email_list[self.mailCount - 1]), font=("Arial", 7), anchor="nw", tag="mailnum")
             self.email.create_text(4, 46, text=str(self.email_list[self.mailCount - 2]), font=("Arial", 7), anchor="nw", tag="mailnum")
@@ -487,20 +522,16 @@ class App():
             if self.mailCount == 0:
                 # loop is repeating even after the set of notifications
                 self.mailCount = 10
-        self.root.after(10000, self.emailUpdate)
+        self.root.after(13000, self.emailUpdate)
     '''
     Notification updates
     '''
     def notifiUpdate(self):
         if self.dayInterval >= len(self.dayWC)-1: #Did not make goal
             if self.wordCount < self.goal_dayWC:
-                self.notif.delete("notifTag")
-                self.notif.create_text(2,2,text = ":(",anchor="nw",tag="notifTag")
-                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
+                self.notif.config(text = "You did not complete your wordcount goal.",bg=self.notifColors[len(self.notifColors)-1])
             else:
-                self.notif.delete("notifTag")
-                self.notif.create_text(2,2,text = ":)",anchor="nw",tag="notifTag")
-                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
+                self.notif.config(text = "You did completed your wordcount goal!",bg=self.notifColors[len(self.notifColors)-1])
         self.root.after(100, self.notifiUpdate)
     def notif_15Interval(self):
         if self.cR1.get() == 1:
@@ -557,4 +588,5 @@ class App():
 
 
 app=App()
+
 
