@@ -1,84 +1,200 @@
+
+'''
+Team Blueberry
+CS 485 UID
+TPS: Functional Prototype Script
+12/1/16
+'''
+
 from tkinter import *
 import time
-import random
 
 class App():
     def __init__(self):
-        #Set up window variables
+        # Set up window variables
         self.window = Tk() 
         self.root = Frame(self.window, height=150,width=30)
         self.window.title('Blueberry Productivity')
 
-        self.text = Text(self.window) #Main text window
-        self.text.config(wrap=WORD)
-        self.wcLabel = Label(text="",width=100)
         '''
-        Basic variables
+        Text Entry
+        '''
+        self.text = Text(self.window)  # Main text window
+        self.text.config(wrap=WORD)
+        
+
+        '''
+        Basic Variables
         '''
         self.wordCount = 0
         self.graphWidth = 150
         self.graphHeight = 170
-        self.dayWC = [0]*31 #Day wordcount               
+        self.dayWC = [0]*600  # Day wordcount
+        self.weekWC = [0]*8  # Week wordcount
+        self.monthWC = [0]*30       
         self.dayScale = self.graphWidth/len(self.dayWC)
-        self.goal_dayWC = 500
-        self.goal_wkWC = 3000
-        self.goal_mthWC = 10000
-        self.dayCounter = 5000
-        self.dayInterval = 1 #current interval for logging daily word count
-        self.wkInterval = 5 #current interval for logging weekly word count
-        self.mthInterval = 2 
+        self.dayCounter = 1000
+        self.dayInterval = 1  # Current interval for logging daily word count
+        self.wkInterval = 5  # Current interval for logging weekly word count
+        self.mthInterval = 2
         self.bg_color = "#B1D0D3"
         self.hl_color = "#46C4CF"
         self.wht_blue = "#E7FDFF"
-        self.window.config(bg=self.bg_color)
-        self.wcLabel.config(bg = self.bg_color)
         self.mfCount = 12 #media feed counter(Rahul)
         self.mailCount = 10 #mail counter(Rahul)
+        self.window.config(bg=self.bg_color)
+
+        # (Michael: Added these variables for all functions and checkboxes I added)
+        self.goal_dayWC = 400
+        self.goal_weekWC = 3000
+        self.goal_monthWC = 10000
+        self.remindClick = 0
+        self.reminderInterval = 0
+        self.reminderInterval2 = 0
+        self.reminderInterval3 = 0
+        self.c1 = IntVar()
+        self.c2 = IntVar()
+        self.c3 = IntVar()
+        self.c4 = IntVar()
+        self.c5 = IntVar()
+        self.c6 = IntVar()
+        self.cR1 = IntVar()
+        self.cR2 = IntVar()
+        self.cR3 = IntVar()
+        self.cR4 = IntVar()
+        self.cR5 = IntVar()
+        self.cR6 = IntVar()
+        self.cR7 = IntVar()
+        self.cR8 = IntVar()
+        self.cR9 = IntVar()
+
         '''
         Buttons
         '''
-        #Goal Activation Button
+        # Goal Activation Button
         self.goalEdit = False
-        self.button_makeGoal = Button(self.window, text = "   +   ", command=self.EnterGoal,state=NORMAL,bg=self.hl_color)
-        #Reminder Activation Button
+        self.button_makeGoal = Button(self.window, text = "   Goal   ", command=self.EnterGoal,state=NORMAL,bg=self.hl_color,height=3, width=10)
+
+        # Reminder Activation Button
         self.remEdit = False
-        self.button_makeRem = Button(self.window, text = "   )(   ", command=self.EnterRem,bg=self.hl_color)
-        #Day Goal Enterance Box
-        self.dayGoal_label = Label(self.window,text = "Daily Goal", bg=self.bg_color)
+        self.button_makeRem = Button(self.window, text = "   Reminder   ", command=self.EnterRem,bg=self.hl_color,height=3, width=10)
+
+        # Reset Graphs (Michael: Calls ClearGraphs() function)
+        self.reset = Button(self.window, text = "Reset", command=self.ClearGraphs,bg=self.hl_color)
+
+        '''
+        Goal Entry Boxes
+        '''
+        # (Michael: Cleaned up placement of goals and added goals for week and month)
+        # Day Goal Entrance Box
+        self.dayGoal_label = Label(self.window,text = "Daily Word Count Goal", bg=self.bg_color)
         self.dayGoalWC = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color)
         self.dayGoalWC.insert(0,str(self.goal_dayWC))
         self.dayGoalWC.config(state=DISABLED)
-        #Reminder Enterance Box
-        self.rem1_label = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color) #for what the reminder should say
-        self.rem1_label.insert(0,"Enter reminder here.")
+
+        # Week Goal Entrance Box
+        self.weeklyGoal_label = Label(self.window,text = "Weekly Word Count Goal", bg=self.bg_color)
+        self.weeklyGoalWC = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color)
+        self.weeklyGoalWC.insert(0,str(self.goal_weekWC))
+        self.weeklyGoalWC.config(state=DISABLED)
+
+        # Month Goal Entrance Box
+        self.monthGoal_label = Label(self.window,text = "Monthly Word Count Goal", bg=self.bg_color)
+        self.monthGoalWC = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color)
+        self.monthGoalWC.insert(0,str(self.goal_monthWC))
+        self.monthGoalWC.config(state=DISABLED)
+
+        '''
+        Reminder Entry Boxes
+        '''
+        # (Michael: Reminder 3 input box and checkboxes)
+        self.rem1_label = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color)
+        self.rem1_label.insert(0,"Enter Reminder")
         self.rem1_label.config(state=DISABLED)
-        self.rem1_Int = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color) #When they want to be reminded (or in how long they want to be reminded)
-        self.rem1_Int.insert(0,"Enter time (in minutes)")
-        self.rem1_Int.config(state=DISABLED)
+
+        self.check_rem = Checkbutton(self.window, text="15", variable=self.cR1,bg=self.bg_color,command=lambda: self.CheckReminder1(1))
+        self.check_rem.deselect()
+        self.check_rem_1 = Checkbutton(self.window, text="30", variable=self.cR2,bg=self.bg_color,command=lambda: self.CheckReminder1(2))
+        self.check_rem_1.deselect()
+        self.check_rem_2 = Checkbutton(self.window, text="60", variable=self.cR3,bg=self.bg_color,command=lambda: self.CheckReminder1(3))
+        self.check_rem_2.deselect()
+
+        # (Michael: Reminder 2 input box and checkboxes)
+        self.rem2_label = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color)
+        self.rem2_label.insert(0,"Enter Reminder")
+        self.rem2_label.config(state=DISABLED)
+
+        self.check_rem2 = Checkbutton(self.window, text="15", variable=self.cR4,bg=self.bg_color,command=lambda: self.CheckReminder2(1))
+        self.check_rem2.deselect()
+        self.check_rem2_1 = Checkbutton(self.window, text="30", variable=self.cR5,bg=self.bg_color,command=lambda: self.CheckReminder2(2))
+        self.check_rem2_1.deselect()
+        self.check_rem2_2 = Checkbutton(self.window, text="60", variable=self.cR6,bg=self.bg_color,command=lambda: self.CheckReminder2(3))
+        self.check_rem2_2.deselect()
+
+        # (Michael: Reminder 3 input box and checkboxes)
+        self.rem3_label = Entry(self.window,bg=self.hl_color,disabledbackground=self.bg_color)
+        self.rem3_label.insert(0,"Enter Reminder")
+        self.rem3_label.config(state=DISABLED)
+
+        self.check_rem3 = Checkbutton(self.window, text="15", variable=self.cR7,bg=self.bg_color,command=lambda: self.CheckReminder2(1))
+        self.check_rem3.deselect()
+        self.check_rem3_1 = Checkbutton(self.window, text="30", variable=self.cR8,bg=self.bg_color,command=lambda: self.CheckReminder2(2))
+        self.check_rem3_1.deselect()
+        self.check_rem3_2 = Checkbutton(self.window, text="60", variable=self.cR9,bg=self.bg_color,command=lambda: self.CheckReminder2(3))
+        self.check_rem3_2.deselect()
+
+        '''
+        Widget Select
+        '''
+        # (Michael: Create labels for widgets and their respective checkboxes)
+        self.WidgetLabel = Label(self.window, text="Graphs")
+        self.GraphLabel = Label(self.window, text="Widgets")
+        self.check1 = Checkbutton(self.window, text="Daily WC", variable=self.c1, bg=self.bg_color,command=lambda: self.CheckToggle(1))
+        self.check1.deselect()
+        self.check2 = Checkbutton(self.window, text="Weekly WC", variable=self.c2,bg=self.bg_color,command=lambda: self.CheckToggle(2))
+        self.check2.deselect()
+        self.check3 = Checkbutton(self.window, text="Monthly WC", variable=self.c3,bg=self.bg_color,command=lambda: self.CheckToggle(3))
+        self.check3.deselect()
+        self.check4 = Checkbutton(self.window, text="Email", variable=self.c4,bg=self.bg_color,command=lambda: self.CheckToggle(4))
+        self.check4.deselect()
+        self.check5 = Checkbutton(self.window, text="Words Left", variable=self.c5,bg=self.bg_color,command=lambda: self.CheckToggle(5))
+        self.check5.deselect()
+        self.check6 = Checkbutton(self.window, text="Media Feed", variable=self.c6,bg=self.bg_color,command=lambda: self.CheckToggle(6))
+        self.check6.deselect()
+        #list for spots
+        self.widgetList = [0]*3 #0=available, 1=taken
+        self.widgetTrack = [0,2,5,8]
+
         '''
         Graphs
         '''
+        # Placeholder Canvases
+        self.widget1 = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
+        self.widget2 = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
+        self.widget3 = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
+
         #Daily
         self.dayGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE)
         self.dayGraph.create_text(3,3,text="Daily Word Count",font=("Courier",8,"underline"),anchor="nw") #Graph label
         self.dayGraph.create_text(4,22,text=str(self.goal_dayWC-self.wordCount) + " to go",anchor="nw",tag="udDayWC")
+        
         #Weekly (prepopulated)
         self.wkWC = [0,400,735,993,1320,1320] #Week wordcount (up to Thursday; test Friday)
         self.wkGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE)
         self.wkGraph.create_text(3,3,text="Weekly Word Count",font=("Courier",8,"underline"),anchor="nw") #Graph label
         #self.wkGraph.create_rectangle(2,20,self.graphWidth,self.graphHeight)#Make boarder
-        self.wkGraph.create_text(4,22,text=str(self.goal_wkWC-(self.wkWC[3]+self.wordCount))+" to go",anchor="nw",tag="udWkWC")
+        self.wkGraph.create_text(4,22,text=str(self.goal_weekWC-(self.wkWC[3]+self.wordCount))+" to go",anchor="nw",tag="udWkWC")
         self.wkScale = self.graphWidth/7
         #Monthly (prepopulated)
         self.mthWC = [0,1320,1320] #Week wordcount (up to Thursday; test Friday)
         self.mthGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE)
         self.mthGraph.create_text(3,3,text="Monthly Word Count",font=("Courier",8,"underline"),anchor="nw") #Graph label
-        self.mthGraph.create_text(4,22,text=str(self.goal_wkWC-(self.wkWC[3]+self.wordCount))+" to go",anchor="nw",tag="udMthWC")
+        self.mthGraph.create_text(4,22,text=str(self.goal_weekWC-(self.wkWC[3]+self.wordCount))+" to go",anchor="nw",tag="udMthWC")
         self.mthScale = self.graphWidth/30
         self.currentGraphHeight = self.mthGraph.winfo_height()
 
         '''
-        Widgets
+        #Widgets
         '''
         #Media Feed
         self.mediaFeed_list = ["Johhny Appleseed: Ready for a big weekend.","CNN: Markets respond to recent events",
@@ -107,86 +223,207 @@ class App():
         self.email.config(bg=self.wht_blue, relief=SUNKEN, bd=1)
         self.email.create_rectangle(0, 0, self.graphWidth + 4, 20, fill=self.hl_color)
         self.email.create_text(4, 3, text="Email", font=("Courier", 10), anchor="nw")        
+       
 
         '''
         Notification
         '''
-        #Variables
         self.notif = Canvas(self.window, height=self.graphHeight/4, width=self.graphWidth)
         #self.notif.create_text(2,2,text = "Notification here",anchor="nw",tag="notifTag")
         self.notif.config(bg="#7EE2E4")
         
         '''
-        Other dressy stuff
+        Fake Tool Bar & Word Counter
         '''
-        self.fakeMenu = Label(self.window,text="File     Edit     View     Format     Help")
-        self.fakeMenu.config(anchor="w",bg=self.bg_color)
+        # (Michael: Put fake menus in corner, looks nicer there)
+        self.fakeMenu = Label(self.window,text="File     Edit     View     Format     Help",bg=self.bg_color)
+        self.fakeMenu.config(anchor="nw")
+        self.wcLabel = Label(text="",width=40,bg=self.bg_color)
         '''
-        Pack everything in the grid
+        Place in Grid
         '''
-        #Main text Box
-        self.text.grid(row=1,column=3,rowspan=15,columnspan=4)
-        self.text.config(height=40)#Update that shit
-        self.fakeMenu.grid(row=0,column=0,columnspan=8)
+        # Main text Box
+        self.text.grid(row=1,column=2,rowspan=15,columnspan=4)
+        self.text.config(height=40)
+        self.fakeMenu.grid(row=0,column=0,columnspan=7,sticky=NW)
         self.wcLabel.grid(row=18,column=0,columnspan=8)
-        #Right Margin
-        self.button_makeGoal.grid(row=1,column=7,sticky=E) #Buttons
-        self.button_makeRem.grid(row=1,column=8,sticky=W)
-        self.dayGoalWC.grid(row=2,column=8) #Goal Boxes
-        self.dayGoal_label.grid(row=2,column=7)
-        self.rem1_label.grid(row=3,column=7,padx=3)#Reiminder Boxes
-        self.rem1_Int.grid(row=3,column=8,padx=5)     
-        #Left Margin
-        self.notif.grid(row=1,column=0,columnspan=2) 
-        self.dayGraph.grid(row=2,column=1,columnspan=2,rowspan=1)#***Change rowspan to 1 to get the widgets to full height. Why? Who the fuck knows?
-        #self.mediaFeed.grid(row=5,column=1,columnspan=2,rowspan=1)
-        #self.email.grid(row=5,column=1,columnspan=2,rowspan=1)
-        self.cal.grid(row=5,column=1,columnspan=2,rowspan=1)
-        #self.wkGraph.grid(row=8,column=1,columnspan=2,rowspan=1)
-        self.mthGraph.grid(row=8,column=1,columnspan=2,rowspan=1)
 
-        #Run through everything
+        # Right Margin
+        self.button_makeGoal.grid(row=1,column=6,sticky=E,padx=10)
+        self.button_makeRem.grid(row=1,column=7,sticky=W,padx=10)
+
+        # Placing input boxes and labels for goals
+        self.dayGoalWC.grid(row=2,column=7,sticky=N, padx =5)
+        self.dayGoal_label.grid(row=2,column=6,sticky=N, padx = 5)
+        self.weeklyGoalWC.grid(row=3,column=7)
+        self.weeklyGoal_label.grid(row=3,column=6)
+        self.monthGoalWC.grid(row=4,column=7,sticky = S)
+        self.monthGoal_label.grid(row=4,column=6, sticky = S)
+
+        # Reminder Input Box #1 and it's checkboxes (Michael: Cleaned up reminders and added checkboxes for intervals)
+        self.rem1_label.grid(row=6,column=6,sticky = N,pady=20,padx=5)
+        self.check_rem.grid(row=6,column=7,sticky= NW,pady=20)
+        self.check_rem_1.grid(row=6, column=7, sticky=N, pady=20)
+        self.check_rem_2.grid(row=6, column=7, sticky=NE, pady=20)
+
+        # Reminder Input Box #2 and it's checkboxes (Michael: Cleaned up reminders and added checkboxes for intervals)
+        self.rem2_label.grid(row=7,column=6)
+        self.check_rem2.grid(row=7,column=7,sticky= W,pady=20)
+        self.check_rem2_1.grid(row=7, column=7, pady=20)
+        self.check_rem2_2.grid(row=7, column=7, sticky=E, pady=20)
+
+        # Reminder Input Box #3 and it's checkboxes (Michael: Cleaned up reminders and added checkboxes for intervals)
+        self.rem3_label.grid(row=8,column=6,sticky = S,pady=2)
+        self.check_rem3.grid(row=8,column=7,sticky= SW)
+        self.check_rem3_1.grid(row=8, column=7, sticky=S)
+        self.check_rem3_2.grid(row=8, column=7, sticky=SE)
+
+        # Widget selector checkboxes and labels (Michael: Added checkboxes for six widgets that will appear on left side,
+        # I tried to get them to line up and look nice but they just weren't having it)
+        self.WidgetLabel.grid(row=9, column=6,sticky=N,pady=20)
+        self.GraphLabel.grid(row=9, column=7,sticky=N,pady=20)
+        self.check1.grid(row=10,column=6,sticky=W)
+        self.check2.grid(row=11, column=6,sticky=W)
+        self.check3.grid(row=12, column=6,sticky=W)
+        self.check4.grid(row=10, column=7,sticky=W)
+        self.check5.grid(row=11, column=7,sticky=W)
+        self.check6.grid(row=12, column=7,sticky=W)
+
+        # Left Margin (Michael: Added three graphs on left, placed word counter above text box, added reset buttons that
+        #  will clear all of the graphs)
+        self.notif.grid(row=1,column=0, padx=5,pady=5)
+        self.widget1.grid(row=2,column=0,columnspan=2,rowspan=3,pady=1,sticky=S)
+        self.widget2.grid(row=5, column=0,columnspan=2,rowspan = 3,pady=1)
+        self.widget3.grid(row=8, column=0, columnspan=2,rowspan=3,pady=1)
+        self.reset.grid(row=11,column=0, sticky=S, padx=5)
+
+        # Loops and Update Calls
         self.timerupdate()
         self.graphUpdate()
-        self.notifiUpdate()
         self.mediaFeedUpdate()
         self.emailUpdate()
+        self.notifiUpdate()
         self.root.mainloop()
 
-    # Button functions to test if the button objects work and to analyze the entered text
+    '''
+    Button Functions
+    '''
     def TextAnalysis(self):
         self.wordCount = 0
         for word in self.text.get("1.0",END).split(" "):
             self.wordCount += 1
         return self.wordCount
-        #messagebox.showinfo(None, wordCount)
+
+    # (Michael: Reset function calls this function which clears graphs and checkboxes)
+    def ClearGraphs(self):
+        self.widgetList = [0]*3 #0=available, 1=taken
+        self.dayGraph.grid_forget()
+        self.wkGraph.grid_forget()
+        self.mthGraph.grid_forget()
+        self.email.grid_forget()
+        self.mediaFeed.grid_forget()
+        self.cal.grid_forget()
+        self.check1.deselect()
+        self.check2.deselect()
+        self.check3.deselect()
+        self.check4.deselect()
+        self.check5.deselect()
+        self.check6.deselect()
+
+    # (Michael: Added goals for weekly and monthly goals)
     def EnterGoal(self):
         if self.goalEdit == False:
             self.goalEdit = True
             self.dayGoalWC.config(state=NORMAL)
+            self.weeklyGoalWC.config(state=NORMAL)
+            self.monthGoalWC.config(state=NORMAL)
         else:
             self.goalEdit = False
             self.dayGoalWC.config(state=DISABLED)
             self.goal_dayWC = int(self.dayGoalWC.get())
+            self.weeklyGoalWC.config(state=DISABLED)
+            self.goal_weekWC = int(self.weeklyGoalWC.get())
+            self.monthGoalWC.config(state=DISABLED)
+            self.goal_monthWC = int(self.monthGoalWC.get())
+
+    # (Michael: Took out out configs for the second text box since there are checkboxes now, added two more reminders)
     def EnterRem(self):
         if self.remEdit == False:
             self.remEdit = True
             self.rem1_label.config(state=NORMAL)
-            self.rem1_Int.config(state=NORMAL)
+            self.rem2_label.config(state=NORMAL)
+            self.rem3_label.config(state=NORMAL)
         else:
             self.remEdit = False
             self.rem1_label.config(state=DISABLED)
-            self.rem1_Int.config(state=DISABLED)
-    '''
-    Updaters
-    '''
+            self.rem2_label.config(state=DISABLED)
+            self.rem3_label.config(state=DISABLED)
+
+    # (Michael: BUILD THE WIDGETS IN THIS FUNCTION, THE CHECKBOXES CALL THIS FUNCTION!
+    # I moved all the actual construction of the widgets to this function since they rely on the
+    # checkboxes to display them. Also the graph names indicate which canvas the checkboxes build on
+    # i.e. dayGraph = top canvas, weekGraph = middle canvas, monthGraph = bottom canvas.)
+    def CheckToggle(self, b_id):
+        if b_id == 1: #Daily Word Count
+            self.dayGraph.grid(column=0,row=self.SelectWidgetLoc(),columnspan=2,rowspan=3)
+        elif b_id == 2: #Weekly Word Count
+            self.wkGraph.grid(column=0,row=self.SelectWidgetLoc(),columnspan=2,rowspan=3)
+        elif b_id == 3: #Monthly Word Count
+            self.mthGraph.grid(column=0,row=self.SelectWidgetLoc(),columnspan=2,rowspan=3)
+        elif b_id == 4:#Email
+            self.email.grid(column=0,row=self.SelectWidgetLoc(),columnspan=2,rowspan=3)
+        elif b_id == 5:#Word analysis
+            self.cal.grid(column=0,row=self.SelectWidgetLoc(),columnspan=2,rowspan=3)
+        elif b_id == 6:#Media Feed
+            self.mediaFeed.grid(column=0,row=self.SelectWidgetLoc(),columnspan=2,rowspan=3)
+    def SelectWidgetLoc(self):
+        if self.widgetList[0] == 0:
+            selection = 2
+            self.widgetList[0] = 1
+        elif self.widgetList[1] == 0:
+            selection = 5
+            self.widgetList[1] = 1
+        else:
+            selection = 8
+            self.widgetList[2] = 1
+        return selection
+
+
+    # (Michael: Next three functions set interval variables for each of the three reminders, use these variables
+    # for setting the timing for the notification)
+    def CheckReminder1(self, r_id):
+        if r_id == 1:
+            self.reminderInterval = 15
+        elif r_id == 2:
+            self.reminderInterval = 30
+        elif r_id == 3:
+            self.reminderInterval = 60
+
+    def CheckReminder2(self, r_id):
+        if r_id == 1:
+            self.reminderInterval2 = 15
+        elif r_id == 2:
+            self.reminderInterval2 = 30
+        elif r_id == 3:
+            self.reminderInterval2 = 60
+
+    def CheckReminder3(self, r_id):
+        if r_id == 1:
+            self.reminderInterval3 = 15
+        elif r_id == 2:
+            self.reminderInterval3 = 30
+        elif r_id == 3:
+            self.reminderInterval3 = 60
+
+    # Updater loop
     def timerupdate(self):
         self.TextAnalysis()
         self.wcLabel.configure(text="Word Count: " + str(self.wordCount))
-        self.dayWC[self.dayInterval] = self.wordCount 
+        self.dayWC[self.dayInterval] = self.wordCount
         self.wkWC[self.wkInterval] = self.wordCount+self.wkWC[self.wkInterval-1]
         self.mthWC[self.mthInterval] = self.wordCount+self.mthWC[self.mthInterval-1]
         self.root.after(100, self.timerupdate)
+
     def graphUpdate(self):
         #update day graph
         self.currentGraphHeight = self.dayGraph.winfo_height()      
@@ -203,8 +440,8 @@ class App():
         self.wkGraph.delete("udWkWC")
         self.wkGraph.delete("wkLineBack")
         for i in range(0,len(self.wkWC)-1):
-            self.wkGraph.create_line(i*self.wkScale,(1-(self.wkWC[i]/self.goal_wkWC))*self.currentGraphHeight,(i+1)*(self.wkScale),(1-(self.wkWC[i+1]/self.goal_wkWC))*self.currentGraphHeight,width=2,tag="wkLineBack")
-        self.wkGraph.create_text(4,22,text=str(self.goal_wkWC-(self.wkWC[self.wkInterval]+self.wordCount))+" to go",anchor="nw",tag="udWkWC")       
+            self.wkGraph.create_line(i*self.wkScale,(1-(self.wkWC[i]/self.goal_weekWC))*self.currentGraphHeight,(i+1)*(self.wkScale),(1-(self.wkWC[i+1]/self.goal_weekWC))*self.currentGraphHeight,width=2,tag="wkLineBack")
+        self.wkGraph.create_text(4,22,text=str(self.goal_weekWC-(self.wkWC[self.wkInterval]+self.wordCount))+" to go",anchor="nw",tag="udWkWC")       
 
         #update month graph
         self.currentGraphHeight = self.mthGraph.winfo_height()
@@ -212,21 +449,12 @@ class App():
         self.mthGraph.delete("udMthWC")
         self.mthGraph.delete("mthLineBack")
         for i in range(0,len(self.mthWC)-1):
-            self.mthGraph.create_line(i*self.mthScale,(1-(self.mthWC[i]/self.goal_mthWC))*self.currentGraphHeight,(i+1)*(self.mthScale),(1-(self.mthWC[i+1]/self.goal_mthWC))*self.currentGraphHeight,width=2,tag="mthLineBack")
-        self.mthGraph.create_text(4,22,text=str(self.goal_mthWC-(self.mthWC[self.mthInterval]+self.wordCount))+" to go",anchor="nw",tag="udMthWC")     
-   
+            self.mthGraph.create_line(i*self.mthScale,(1-(self.mthWC[i]/self.goal_monthWC))*self.currentGraphHeight,(i+1)*(self.mthScale),(1-(self.mthWC[i+1]/self.goal_monthWC))*self.currentGraphHeight,width=2,tag="mthLineBack")
+        self.mthGraph.create_text(4,22,text=str(self.goal_monthWC-(self.mthWC[self.mthInterval]+self.wordCount))+" to go",anchor="nw",tag="udMthWC")      
         self.root.after(self.dayCounter, self.graphUpdate)
-    def notifiUpdate(self):
-        if self.dayInterval >= len(self.dayWC)-1: #Did not make goal
-            if self.wordCount < self.goal_dayWC:
-                self.notif.delete("notifTag")
-                self.notif.create_text(2,2,text = ":(",anchor="nw",tag="notifTag")
-                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
-            else:
-                self.notif.delete("notifTag")
-                self.notif.create_text(2,2,text = ":)",anchor="nw",tag="notifTag")
-                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
-        self.root.after(100, self.notifiUpdate)
+    '''
+    Tool Updates
+    '''
     def mediaFeedUpdate(self):
         # update Media Feed ~ Rahul
         if self.mfCount > 0:
@@ -254,6 +482,20 @@ class App():
                 self.mailCount = 10
         self.root.after(10000, self.emailUpdate)
 
+    def notifiUpdate(self):
+        if self.dayInterval >= len(self.dayWC)-1: #Did not make goal
+            if self.wordCount < self.goal_dayWC:
+                self.notif.delete("notifTag")
+                self.notif.create_text(2,2,text = ":(",anchor="nw",tag="notifTag")
+                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
+            else:
+                self.notif.delete("notifTag")
+                self.notif.create_text(2,2,text = ":)",anchor="nw",tag="notifTag")
+                self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
+        self.root.after(100, self.notifiUpdate)
+
 
 app=App()
-app.mainloop()
+# (Michael: Don't need this line since the window has the mainloop)
+#app.mainloop()
+
