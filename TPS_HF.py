@@ -40,6 +40,7 @@ class App():
         self.bg_color = "#B1D0D3"
         self.hl_color = "#46C4CF"
         self.wht_blue = "#E7FDFF"
+        self.wht_prp = "#F4F4FF"
         self.mfCount = 12 #media feed counter(Rahul)
         self.mailCount = 10 #mail counter(Rahul)
         self.window.config(bg=self.bg_color)
@@ -158,8 +159,8 @@ class App():
         Widget Select
         '''
         # (Michael: Create labels for widgets and their respective checkboxes)
-        self.WidgetLabel = Label(self.window, text="Graphs")
-        self.GraphLabel = Label(self.window, text="Widgets")
+        self.WidgetLabel = Label(self.window, text="Graphs",bg=self.bg_color)
+        self.GraphLabel = Label(self.window, text="Widgets",bg=self.bg_color)
         self.check1 = Checkbutton(self.window, text="Daily WC", variable=self.c1, bg=self.bg_color,command=lambda: self.CheckToggle(1))
         self.check1.deselect()
         self.check2 = Checkbutton(self.window, text="Weekly WC", variable=self.c2,bg=self.bg_color,command=lambda: self.CheckToggle(2))
@@ -185,20 +186,20 @@ class App():
         self.widget3 = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
 
         #Daily
-        self.dayGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE)
+        self.dayGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE,bg=self.wht_prp)
         self.dayGraph.create_text(3,3,text="Daily Word Count",font=("Courier",8,"underline"),anchor="nw") #Graph label
         self.dayGraph.create_text(4,22,text=str(self.goal_dayWC-self.wordCount) + " to go",anchor="nw",tag="udDayWC")
         
         #Weekly (prepopulated)
         self.wkWC = [0,400,735,993,1320,1320] #Week wordcount (up to Thursday; test Friday)
-        self.wkGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE)
+        self.wkGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE,bg=self.wht_prp)
         self.wkGraph.create_text(3,3,text="Weekly Word Count",font=("Courier",8,"underline"),anchor="nw") #Graph label
         #self.wkGraph.create_rectangle(2,20,self.graphWidth,self.graphHeight)#Make boarder
         self.wkGraph.create_text(4,22,text=str(self.goal_weekWC-(self.wkWC[3]+self.wordCount))+" to go",anchor="nw",tag="udWkWC")
         self.wkScale = self.graphWidth/7
         #Monthly (prepopulated)
         self.mthWC = [0,1320,1320] #Week wordcount (up to Thursday; test Friday)
-        self.mthGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE)
+        self.mthGraph = Canvas(self.window,height=self.graphHeight,width=self.graphWidth,bd=1,relief=GROOVE,bg=self.wht_prp)
         self.mthGraph.create_text(3,3,text="Monthly Word Count",font=("Courier",8,"underline"),anchor="nw") #Graph label
         self.mthGraph.create_text(4,22,text=str(self.goal_weekWC-(self.wkWC[3]+self.wordCount))+" to go",anchor="nw",tag="udMthWC")
         self.mthScale = self.graphWidth/30
@@ -217,12 +218,12 @@ class App():
                                "CNN: Trash turns island into graveyard", "CNN: Study finds millions of China's missing girls actually exist", "CNN: New technology could help 230 million"]
         self.mfCount = len(self.mediaFeed_list)-1
         self.mediaFeed = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
-        self.mediaFeed.config(bg=self.wht_blue,relief=SUNKEN,bd=1)
+        self.mediaFeed.config(bg=self.wht_prp,relief=SUNKEN,bd=1)
         self.mediaFeed.create_rectangle(0,0,self.graphWidth+4,20,fill=self.hl_color)
         self.mediaFeed.create_text(4,3,text="Media Feed",font=("Courier",10),anchor="nw")
         #Appointments
         self.cal = Canvas(self.window,height=self.graphHeight,width=self.graphWidth)
-        self.cal.config(bg=self.wht_blue,relief=GROOVE,bd=1)
+        self.cal.config(bg=self.wht_prp,relief=GROOVE,bd=1)
         self.cal.create_rectangle(0,0,self.graphWidth+4,20,fill=self.hl_color)
         self.cal.create_text(4,3,text="Calendar",font=("Courier",10),anchor="nw")
         self.cal.create_text(4,20,text = "All day - Jami's Birthday \n 11:35am - Class \n 2:00pm - Meeting with Tim \n 5:00pm - Paper due",anchor="nw")
@@ -234,7 +235,7 @@ class App():
                            "Facebook: 'John Layfield commented on your post'", "CheapOAir: 'AIR TICKET NUMBER & AIRLINE CONFIRMATION. Booking# 35511345'",
                            "Jame Alexander: 'Flight got delayed'"]
         self.email = Canvas(self.window, height=self.graphHeight, width=self.graphWidth)
-        self.email.config(bg=self.wht_blue, relief=SUNKEN, bd=1)
+        self.email.config(bg=self.wht_prp, relief=SUNKEN, bd=1)
         self.email.create_rectangle(0, 0, self.graphWidth + 4, 20, fill=self.hl_color)
         self.email.create_text(4, 3, text="Email", font=("Courier", 10), anchor="nw")        
        
@@ -383,6 +384,7 @@ class App():
             self.check_rem3.config(state=NORMAL)
             self.check_rem3_1.config(state=NORMAL)
             self.check_rem3_2.config(state=NORMAL)
+            self.root.after
         else:
             self.remEdit = False
             self.rem1_label.config(state=DISABLED)
@@ -397,9 +399,6 @@ class App():
             self.check_rem3.config(state=DISABLED)
             self.check_rem3_1.config(state=DISABLED)
             self.check_rem3_2.config(state=DISABLED)
-            self.root.after_cancel(self.notif_15Interval)
-            self.root.after_cancel(self.notif_30Interval)
-            self.root.after_cancel(self.notif_60Interval)
 
     # (Michael: BUILD THE WIDGETS IN THIS FUNCTION, THE CHECKBOXES CALL THIS FUNCTION!
     # I moved all the actual construction of the widgets to this function since they rely on the
@@ -477,14 +476,12 @@ class App():
         self.dayGraph.delete("udDayWC")
         self.dayGraph.create_text(4,22,text=str(self.goal_dayWC-self.wordCount)  + " to go",anchor="nw",tag="udDayWC")
         #update week graph
-        self.currentGraphHeight = self.dayGraph.winfo_height()
-        self.wkGraph.delete("udWkLine")
+        self.currentGraphHeight = self.wkGraph.winfo_height()
         self.wkGraph.delete("udWkWC")
         self.wkGraph.delete("wkLineBack")
         for i in range(0,len(self.wkWC)-1):
             self.wkGraph.create_line(i*self.wkScale,(1-(self.wkWC[i]/self.goal_weekWC))*self.currentGraphHeight,(i+1)*(self.wkScale),(1-(self.wkWC[i+1]/self.goal_weekWC))*self.currentGraphHeight,width=2,tag="wkLineBack")
         self.wkGraph.create_text(4,22,text=str(self.goal_weekWC-(self.wkWC[self.wkInterval]+self.wordCount))+" to go",anchor="nw",tag="udWkWC")       
-
         #update month graph
         self.currentGraphHeight = self.mthGraph.winfo_height()
         self.mthGraph.delete("udMthLine")
@@ -537,37 +534,47 @@ class App():
         if self.cR1.get() == 1:
             self.notif.config(text=self.rem1_label.get())
             self.notifActive = True
+            self.check_rem.deselect()
         if self.cR4.get() == 1:
             self.notif.config(text=self.rem2_label.get())
             self.notifActive = True
+            self.check_rem2.deselect()
         if self.cR7.get() == 1:
             self.notif.config(text=self.rem3_label.get())
             self.notifActive = True
+            self.check_rem.deselect()
+            self.check_rem3.deselect()
         self.root.after(15000,self.notif_15Interval)
     def notif_30Interval(self):
         if self.cR2.get() == 1:
             self.notif.config(text=self.rem1_label.get())
+            self.check_rem_1.deselect()
             self.notifActive = True
         if self.cR5.get() == 1:
             self.notif.config(text=self.rem2_label.get())
             self.notifActive = True
+            self.check_rem2_1.deselect()
         if self.cR8.get() == 1:
             self.notif.config(text=self.rem3_label.get())
             self.notifActive = True
+            self.check_rem3_1.deselect()
         self.root.after(30000,self.notif_30Interval)
     def notif_60Interval(self):
         if self.cR3.get() == 1:
             self.notif.config(text=self.rem1_label.get())
             self.notifFlash()
             #self.notifActive = True
+            self.check_rem_2.deselect()
         if self.cR6.get() == 1:
             self.notif.config(text=self.rem2_label.get())
             self.notifFlash()
             #self.notifActive = True
+            self.check_rem2_2.deselect()
         if self.cR9.get() == 1:
             self.notif.config(text=self.rem3_label.get())
             self.notifFlash()
             #self.notifActive = True
+            self.check_rem3_2.deselect()
         self.root.after(60000,self.notif_60Interval)
     def notifStop(self):
         self.notifActive = False
@@ -588,5 +595,4 @@ class App():
 
 
 app=App()
-
 
