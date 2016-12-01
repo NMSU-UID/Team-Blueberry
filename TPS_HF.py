@@ -157,7 +157,7 @@ class App():
         self.check3.deselect()
         self.check4 = Checkbutton(self.window, text="Email", variable=self.c4,bg=self.bg_color,command=lambda: self.CheckToggle(4))
         self.check4.deselect()
-        self.check5 = Checkbutton(self.window, text="Words Left", variable=self.c5,bg=self.bg_color,command=lambda: self.CheckToggle(5))
+        self.check5 = Checkbutton(self.window, text="Calendar", variable=self.c5,bg=self.bg_color,command=lambda: self.CheckToggle(5)) #Changed this because we made a calendar widget
         self.check5.deselect()
         self.check6 = Checkbutton(self.window, text="Media Feed", variable=self.c6,bg=self.bg_color,command=lambda: self.CheckToggle(6))
         self.check6.deselect()
@@ -228,10 +228,13 @@ class App():
         '''
         Notification
         '''
-        self.notif = Canvas(self.window, height=self.graphHeight/4, width=self.graphWidth)
+        self.notifActive = True
+        self.notifColors = ["#A9CFD3","#9BCCD1","#8DCAD0","#7EC7CE","#6FC5CD","#5FC3CC","#52C2CC","#45C0CB","#3BBECA","#22BFCD", "#1BBFCE","#14C1D1","#0AC0D1","#00BBCD"]
+        self.notifColorsCount = 0
+        self.notifColorsDir = 1
+        self.notif = Button(self.window,height=3,width=24,bd=0,relief=RAISED,command=self.notifStop)
         #self.notif.create_text(2,2,text = "Notification here",anchor="nw",tag="notifTag")
-        self.notif.config(bg="#7EE2E4")
-        
+        self.notif.config(bg=self.bg_color)
         '''
         Fake Tool Bar & Word Counter
         '''
@@ -291,7 +294,7 @@ class App():
 
         # Left Margin (Michael: Added three graphs on left, placed word counter above text box, added reset buttons that
         #  will clear all of the graphs)
-        self.notif.grid(row=1,column=0, padx=5,pady=5)
+        self.notif.grid(row=1,column=0,columnspan=2,padx=5,pady=5)
         self.widget1.grid(row=2,column=0,columnspan=2,rowspan=3,pady=1,sticky=S)
         self.widget2.grid(row=5, column=0,columnspan=2,rowspan = 3,pady=1)
         self.widget3.grid(row=8, column=0, columnspan=2,rowspan=3,pady=1)
@@ -303,6 +306,10 @@ class App():
         self.mediaFeedUpdate()
         self.emailUpdate()
         self.notifiUpdate()
+        self.notif_15Interval()
+        self.notif_30Interval()
+        self.notif_60Interval()
+        self.notifFade()
         self.root.mainloop()
 
     '''
@@ -481,7 +488,9 @@ class App():
                 # loop is repeating even after the set of notifications
                 self.mailCount = 10
         self.root.after(10000, self.emailUpdate)
-
+    '''
+    Notification updates
+    '''
     def notifiUpdate(self):
         if self.dayInterval >= len(self.dayWC)-1: #Did not make goal
             if self.wordCount < self.goal_dayWC:
@@ -493,9 +502,59 @@ class App():
                 self.notif.create_text(2,2,text = ":)",anchor="nw",tag="notifTag")
                 self.notif.config(relief="ridge",bg="#7EE2E4",bd=1)
         self.root.after(100, self.notifiUpdate)
+    def notif_15Interval(self):
+        if self.cR1.get() == 1:
+            self.notif.config(text=self.rem1_label.get())
+            self.notifActive = True
+        if self.cR4.get() == 1:
+            self.notif.config(text=self.rem2_label.get())
+            self.notifActive = True
+        if self.cR7.get() == 1:
+            self.notif.config(text=self.rem3_label.get())
+            self.notifActive = True
+        self.root.after(15000,self.notif_15Interval)
+    def notif_30Interval(self):
+        if self.cR2.get() == 1:
+            self.notif.config(text=self.rem1_label.get())
+            self.notifActive = True
+        if self.cR5.get() == 1:
+            self.notif.config(text=self.rem2_label.get())
+            self.notifActive = True
+        if self.cR8.get() == 1:
+            self.notif.config(text=self.rem3_label.get())
+            self.notifActive = True
+        self.root.after(30000,self.notif_30Interval)
+    def notif_60Interval(self):
+        if self.cR3.get() == 1:
+            self.notif.config(text=self.rem1_label.get())
+            self.notifFlash()
+            #self.notifActive = True
+        if self.cR6.get() == 1:
+            self.notif.config(text=self.rem2_label.get())
+            self.notifFlash()
+            #self.notifActive = True
+        if self.cR9.get() == 1:
+            self.notif.config(text=self.rem3_label.get())
+            self.notifFlash()
+            #self.notifActive = True
+        self.root.after(60000,self.notif_60Interval)
+    def notifStop(self):
+        self.notifActive = False
+        self.notif.config(text="",bg=self.bg_color)
+        self.notifColorsCount = 0
+        self.notifColorsDir = 1
+    def notifFade(self):
+        if self.notifActive == True:
+            if self.notifColorsCount <= 0:
+                self.notifColorsDir = 1
+            elif self.notifColorsCount == len(self.notifColors)-1:
+                self.notifColorsDir = -1
+            self.notif.config(bg=self.notifColors[self.notifColorsCount])
+            self.notifColorsCount = self.notifColorsCount + self.notifColorsDir
+        self.root.after(100,self.notifFade)
+    def notifFlash(self):
+        self.notif.config(bg=self.notifColors[len(self.notifColors)-1])
 
 
 app=App()
-# (Michael: Don't need this line since the window has the mainloop)
-#app.mainloop()
 
